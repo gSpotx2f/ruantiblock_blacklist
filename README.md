@@ -1,4 +1,4 @@
-# Создание конфигов ipset и dnsmasq со списком блокировок для [ruantiblock_openwrt](https://github.com/gSpotx2f/ruantiblock_openwrt).
+# Создание конфигов nftables и dnsmasq со списком блокировок для [ruantiblock_openwrt](https://github.com/gSpotx2f/ruantiblock_openwrt).
 
 Дальнейшие действия, кроме последнего пункта, должны производиться на той машине где будет выполняться создание конфигов!
 
@@ -10,13 +10,13 @@
 
 Создайте локальную копию этого репозитория в `/opt/ruantiblock_blacklist`:
 
-    git clone https://github.com/gSpotx2f/ruantiblock_blacklist_test /opt/ruantiblock_blacklist
+    git clone https://github.com/gSpotx2f/ruantiblock_blacklist /opt/ruantiblock_blacklist
 
 ## Запуск
 
-Создание конфигов ipset и dnsmasq (эту команду можно добавить в cron для регулярного обновления списка блокировок):
+Создание конфигов nftables и dnsmasq (эту команду можно добавить в cron для регулярного обновления списка блокировок):
 
-    /opt/ruantiblock_blacklist/0.9/start.sh
+    /opt/ruantiblock_blacklist/1.1/start.sh
 
 По умолчанию, созданные файлы будут находиться в директориях `blacklist/ip` и `blacklist/fqdn` (в корне проекта) для конфигураций `ip` и `fqdn` соответственно. В скрипте `start.sh` можно изменить директорию для вывода готовых конфигов (`OUTPUT_DIR`) и поместить их, например, на ваш веб-сервер, чтобы роутер (ruantiblock) забирал их оттуда при обновлении блэклиста.
 
