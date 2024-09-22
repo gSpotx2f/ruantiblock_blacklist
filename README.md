@@ -22,14 +22,20 @@
 
 ## Настройка [ruantiblock_openwrt](https://github.com/gSpotx2f/ruantiblock_openwrt) на роутере для получения созданных конфигов с вашего веб-сервера
 
-В конфигурационном файле `/etc/ruantiblock/ruantiblock.conf` измените ссылки на файлы в следующих переменных:
+В файле `/usr/share/ruantiblock/blacklist_sources` измените ссылки на файлы в следующих переменных:
 
-    RA_IP_IPSET_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/ruantiblock.ip"
-    RA_IP_DMASK_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/ruantiblock.dnsmasq"
-    RA_IP_STAT_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/update_status"
-    RA_FQDN_IPSET_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/ruantiblock.ip"
-    RA_FQDN_DMASK_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/ruantiblock.dnsmasq"
-    RA_FQDN_STAT_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/update_status"
+    ruantiblock-ip)
+        ...
+        DL_IPSET_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/ruantiblock.ip"
+        DL_DMASK_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/ruantiblock.dnsmasq"
+        DL_STAT_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/ip/update_status"
+    ;;
+    ruantiblock-fqdn)
+        ...
+        DL_IPSET_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/ruantiblock.ip"
+        DL_DMASK_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/ruantiblock.dnsmasq"
+        DL_STAT_URL="http://<ПУТЬ К ДИРЕКТОРИИ С КОНФИГАМИ НА ВАШЕМ ВЕБ-СЕРВЕРЕ>/fqdn/update_status"
+    ;;
 
 Включение режима обновления блэклиста `ruantiblock-fqdn`:
 
