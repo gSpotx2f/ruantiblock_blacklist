@@ -18,7 +18,7 @@ export MODULES_DIR="."
 
 ########################## Default Settings ############################
 
-### Запись событий в syslog (0 - выкл, 1 - вкл)
+### Запись событий в syslog (0 - off, 1 - on)
 export ENABLE_LOGGING=1
 ### Максимальное кол-во элементов списка nftables
 export NFTSET_MAXELEM_CIDR=65535
@@ -28,8 +28,8 @@ export NFTSET_MAXELEM_IP=1000000
 export NFTSET_POLICY_CIDR="memory"
 export NFTSET_POLICY_IP="memory"
 #export NFTSET_POLICY_DNSMASQ="performance"
-### Добавление в список блокировок пользовательских записей из файла $USER_ENTRIES_FILE (0 - выкл, 1 - вкл)
-###  В $CONFIG_DIR можно создать текстовый файл user_entries с записями IP, CIDR или FQDN (одна на строку). Эти записи будут добавлены в список блокировок
+### Добавление в список блокировок пользовательских записей из файла $USER_ENTRIES_FILE (0 - off, 1 - on)
+###  В $DATA_DIR можно создать текстовый файл user_entries с записями IP, CIDR или FQDN (одна на строку). Эти записи будут добавлены в список блокировок
 ###  В записях FQDN можно задать DNS-сервер для разрешения данного домена, через пробел (прим.: domain.com 8.8.8.8)
 ###  Можно комментировать строки (#)
 export ADD_USER_ENTRIES=0
@@ -59,61 +59,48 @@ BLLIST_MODULE="${MODULES_DIR}/ruab_parser.py"
 export BLLIST_PRESET=""
 ### В случае если из источника получено менее указанного кол-ва записей, то обновления списков не происходит
 export BLLIST_MIN_ENTRIES=30000
-### Лимит IP адресов. При достижении, в конфиг ipset будет добавлена вся подсеть /24 вместо множества IP адресов пренадлежащих этой сети (0 - выкл)
+### Лимит IP адресов. При достижении, в конфиг ipset будет добавлена вся подсеть /24 вместо множества IP адресов пренадлежащих этой сети (0 - off)
 export BLLIST_IP_LIMIT=0
-### Подсети класса C (/24). IP адреса из этих подсетей не группируются при оптимизации (записи д.б. в виде: 68.183.221. 149.154.162. и пр.). Прим.: "68.183.221. 149.154.162."
-export BLLIST_GR_EXCLUDED_NETS=""
+### Файл с подсетями класса C (/24). IP адреса из этих подсетей не группируются при оптимизации (записи д.б. в виде: 68.183.221. 149.154.162. и пр. Одна запись на строку)
+export BLLIST_GR_EXCLUDED_NETS_FILE="${CONFIG_DIR}/gr_excluded_nets"
 ### Группировать идущие подряд IP адреса в подсетях /24 в диапазоны CIDR
 export BLLIST_SUMMARIZE_IP=0
 ### Группировать идущие подряд подсети /24 в диапазоны CIDR
 export BLLIST_SUMMARIZE_CIDR=0
-### Фильтрация записей блэклиста по шаблонам из файла BLLIST_IP_FILTER_FILE. Записи (IP, CIDR) попадающие под шаблоны исключаются из кофига ipset (0 - выкл, 1 - вкл)
+### Фильтрация записей блэклиста по шаблонам из файла BLLIST_IP_FILTER_FILE. Записи (IP, CIDR) попадающие под шаблоны исключаются из кофига ipset (0 - off, 1 - on)
 export BLLIST_IP_FILTER=0
 ### Тип фильтра IP (0 - все записи, кроме совпадающих с шаблонами; 1 - только записи, совпадающие с шаблонами)
 export BLLIST_IP_FILTER_TYPE=0
 ### Файл с шаблонами IP для опции BLLIST_IP_FILTER (каждый шаблон в отдельной строке. # в первом символе строки - комментирует строку)
 export BLLIST_IP_FILTER_FILE="${CONFIG_DIR}/ip_filter"
-### Лимит субдоменов для группировки. При достижении, в конфиг dnsmasq будет добавлен весь домен 2-го ур-ня вместо множества субдоменов (0 - выкл)
+### Включение опции исключения IP/CIDR из блэклиста
+export BLLIST_IP_EXCLUDED_ENABLE=0
+### Файл с записями IP/CIDR для опции BLLIST_IP_EXCLUDED_ENABLE
+export BLLIST_IP_EXCLUDED_FILE="${CONFIG_DIR}/ip_excluded"
+### Лимит субдоменов для группировки. При достижении, в конфиг dnsmasq будет добавлен весь домен 2-го ур-ня вместо множества субдоменов (0 - off)
 export BLLIST_SD_LIMIT=0
-### SLD не подлежащие группировке при оптимизации (через пробел)
-export BLLIST_GR_EXCLUDED_SLD=""
-### Не группировать SLD попадающие под выражения (через пробел) ("[.][a-z]{2,3}[.][a-z]{2}$")
-export BLLIST_GR_EXCLUDED_MASKS=""
-### Фильтрация записей блэклиста по шаблонам из файла ENTRIES_FILTER_FILE. Записи (FQDN) попадающие под шаблоны исключаются из кофига dnsmasq (0 - выкл, 1 - вкл)
+### Файл с SLD не подлежащими группировке при оптимизации (одна запись на строку)
+export BLLIST_GR_EXCLUDED_SLD_FILE="${CONFIG_DIR}/gr_excluded_sld"
+### Файл с масками SLD не подлежащими группировке при оптимизации (одна запись на строку)
+export BLLIST_GR_EXCLUDED_SLD_MASKS_FILE="${CONFIG_DIR}/gr_excluded_sld_mask"
+### Фильтрация записей блэклиста по шаблонам из файла ENTRIES_FILTER_FILE. Записи (FQDN) попадающие под шаблоны исключаются из кофига dnsmasq (0 - off, 1 - on)
 export BLLIST_FQDN_FILTER=0
 ### Тип фильтра FQDN (0 - все записи, кроме совпадающих с шаблонами; 1 - только записи, совпадающие с шаблонами)
 export BLLIST_FQDN_FILTER_TYPE=0
 ### Файл с шаблонами FQDN для опции BLLIST_FQDN_FILTER (каждый шаблон в отдельной строке. # в первом символе строки - комментирует строку)
 export BLLIST_FQDN_FILTER_FILE="${CONFIG_DIR}/fqdn_filter"
-### Обрезка www[0-9]. в FQDN (0 - выкл, 1 - вкл)
+### Включение опции исключения FQDN из блэклиста
+export BLLIST_FQDN_EXCLUDED_ENABLE=0
+### Файл с записями FQDN для опции BLLIST_FQDN_EXCLUDED_ENABLE
+export BLLIST_FQDN_EXCLUDED_FILE="${CONFIG_DIR}/fqdn_excluded"
+### Обрезка www[0-9]. в FQDN (0 - off, 1 - on)
 export BLLIST_STRIP_WWW=1
-### Преобразование кириллических доменов в punycode (0 - выкл, 1 - вкл)
+### Преобразование кириллических доменов в punycode (0 - off, 1 - on)
 export BLLIST_ENABLE_IDN=0
-### Перенаправлять DNS-запросы на альтернативный DNS-сервер для заблокированных FQDN (0 - выкл, 1 - вкл)
+### Перенаправлять DNS-запросы на альтернативный DNS-сервер для заблокированных FQDN (0 - off, 1 - on)
 export BLLIST_ALT_NSLOOKUP=0
 ### Альтернативный DNS-сервер
 export BLLIST_ALT_DNS_ADDR="8.8.8.8"
-
-### Источники блэклиста
-export RBL_ALL_URL="https://reestr.rublacklist.net/api/v2/current/csv/"
-export RBL_IP_URL="https://reestr.rublacklist.net/api/v2/ips/csv/"
-export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
-export ZI_ALL_URL="https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv"
-#export ZI_ALL_URL="https://app.assembla.com/spaces/z-i/git/source/master/dump.csv?_format=raw"
-export AF_IP_URL="https://antifilter.download/list/allyouneed.lst"
-export AF_FQDN_URL="https://antifilter.download/list/domains.lst"
-export FZ_URL="https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.00 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.01 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.02"
-# export RA_IP_IPSET_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/ip/ruantiblock.ip"
-# export RA_IP_DMASK_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/ip/ruantiblock.dnsmasq"
-# export RA_IP_STAT_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/ip/update_status"
-# export RA_FQDN_IPSET_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/fqdn/ruantiblock.ip"
-# export RA_FQDN_DMASK_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/fqdn/ruantiblock.dnsmasq"
-# export RA_FQDN_STAT_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist/fqdn/update_status"
-export RBL_ENCODING=""
-export ZI_ENCODING="CP1251"
-export AF_ENCODING=""
-export FZ_ENCODING="CP1251"
-# export RA_ENCODING=""
 
 ############################ Configuration #############################
 
@@ -123,7 +110,25 @@ if [ -n "$1" ]; then
 fi
 [ -f "$CONFIG_FILE" ] && . "$CONFIG_FILE"
 
-### Blacklist source and mode
+### Blacklist sources
+## rublacklist
+export RBL_ALL_URL="https://reestr.rublacklist.net/api/v3/snapshot/"
+export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
+export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
+export RBL_ENCODING=""
+## zapret-info
+export ZI_ALL_URL="https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv"
+#export ZI_ALL_URL="https://app.assembla.com/spaces/z-i/git/source/master/dump.csv?_format=raw"
+export ZI_ENCODING="CP1251"
+## antifilter
+export AF_IP_URL="https://antifilter.download/list/allyouneed.lst"
+export AF_FQDN_URL="https://antifilter.download/list/domains.lst"
+export AF_ENCODING=""
+## fz
+export FZ_URL="https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.00 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.01 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.02"
+export FZ_ENCODING="CP1251"
+
+### Blacklist presets
 case "$BLLIST_PRESET" in
     zapret-info-ip)
         ### Источник для обновления списка блокировок (zapret-info, rublacklist, antifilter, fz, ruantiblock)
@@ -158,10 +163,20 @@ case "$BLLIST_PRESET" in
 #     ruantiblock-ip)
 #         export BLLIST_SOURCE="ruantiblock"
 #         export BLLIST_MODE="ip"
+#         BLLIST_MODULE="DownloadNativeBlacklist"
+#         # github
+#         DL_IPSET_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/ip/ruantiblock.ip"
+#         DL_DMASK_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/ip/ruantiblock.dnsmasq"
+#         DL_STAT_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/ip/update_status"
 #     ;;
 #     ruantiblock-fqdn)
 #         export BLLIST_SOURCE="ruantiblock"
 #         export BLLIST_MODE="fqdn"
+#         BLLIST_MODULE="DownloadNativeBlacklist"
+#         # github
+#         DL_IPSET_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/fqdn/ruantiblock.ip"
+#         DL_DMASK_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/fqdn/ruantiblock.dnsmasq"
+#         DL_STAT_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/master/blacklist-1.1/fqdn/update_status"
 #     ;;
     *)
         export BLLIST_SOURCE=""
@@ -412,7 +427,6 @@ GetDataFiles() {
         _return_code=2
         return $_return_code
     fi
-
     return $_return_code
 }
 
