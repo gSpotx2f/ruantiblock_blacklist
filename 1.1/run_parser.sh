@@ -117,8 +117,8 @@ export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
 export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
 export RBL_ENCODING=""
 ## zapret-info
-export ZI_ALL_URL="https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv"
-#export ZI_ALL_URL="https://app.assembla.com/spaces/z-i/git/source/master/dump.csv?_format=raw"
+#export ZI_ALL_URL="https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv"
+export ZI_ALL_URL="https://app.assembla.com/spaces/z-i/git/source/master/dump.csv?_format=raw"
 export ZI_ENCODING="CP1251"
 ## antifilter
 export AF_IP_URL="https://antifilter.download/list/allyouneed.lst"
