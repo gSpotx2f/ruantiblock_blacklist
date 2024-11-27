@@ -325,7 +325,7 @@ class BlackListParser(Config):
             ):
                 self.ip_dict[value] = subnet
                 self.ip_subnet_dict[subnet] = (self.ip_subnet_dict.get(subnet) or 0) + 1
-        elif self.cidr_pattern.fullmatch(value) and value not in self.cidr_set:
+        elif self.cidr_pattern.fullmatch(value):
             self.cidr_set.add(value)
 
     def _convert_to_punycode(self, string):
