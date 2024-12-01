@@ -433,7 +433,7 @@ class Summarize:
                 hosts = 1
             end = ip_obj
         else:
-            if hosts > 1 and hosts >= HOSTS_LIMIT:
+            if hosts > 1 and hosts >= cls.HOSTS_LIMIT:
                 if raw_list:
                     remove_items(start, end)
                 yield start, end
