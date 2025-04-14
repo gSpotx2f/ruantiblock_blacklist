@@ -167,13 +167,13 @@ case "$BLLIST_PRESET" in
 esac
 
 AWK_CMD="awk"
-LOGGER_CMD=`which logger`
+LOGGER_CMD="$(which logger)"
 if [ $ENABLE_LOGGING = "1" -a $? -ne 0 ]; then
     echo " Logger doesn't exists" >&2
     ENABLE_LOGGING=0
 fi
 LOGGER_PARAMS="-t ${SCRIPT_NAME}"
-WGET_CMD=`which wget`
+WGET_CMD="$(which wget)"
 if [ $? -ne 0 ]; then
     echo " Error! Wget doesn't exists" >&2
     exit 1
@@ -197,8 +197,8 @@ export NFTSET_IP_TYPE="ipv4_addr"
 export NFTSET_DNSMASQ_TYPE="ipv4_addr"
 export NFTSET_CIDR_PATTERN="set %s {type ${NFTSET_CIDR_TYPE};size ${NFTSET_MAXELEM_CIDR};policy ${NFTSET_POLICY_CIDR};flags interval;auto-merge;"
 export NFTSET_IP_PATTERN="set %s {type ${NFTSET_IP_TYPE};size ${NFTSET_MAXELEM_IP};policy ${NFTSET_POLICY_IP};flags dynamic;"
-export NFTSET_CIDR_STRING_MAIN=`printf "$NFTSET_CIDR_PATTERN" "${NFTSET_CIDR}"`
-export NFTSET_IP_STRING_MAIN=`printf "$NFTSET_IP_PATTERN" "${NFTSET_IP}"`
+export NFTSET_CIDR_STRING_MAIN=$(printf "$NFTSET_CIDR_PATTERN" "${NFTSET_CIDR}")
+export NFTSET_IP_STRING_MAIN=$(printf "$NFTSET_IP_PATTERN" "${NFTSET_IP}")
 export UPDATE_STATUS_FILE="${DATA_DIR}/update_status"
 export USER_ENTRIES_STATUS_FILE="${DATA_DIR}/user_entries_status"
 export IP_DATA_FILE_TMP="${IP_DATA_FILE}.tmp"
@@ -363,11 +363,11 @@ AddUserEntries() {
         fi
         while read _str
         do
-            _update_string=`printf "$_str" | $AWK_CMD '{
+            _update_string="$(printf "$_str" | $AWK_CMD '{
                 if(NF == 4) {
                     printf "User entries (%s): CIDR: %s, IP: %s, FQDN: %s", $4, $1, $2, $3;
                 };
-            }'`
+            }')"
             if [ -n "$_update_string" ]; then
                 ### STDOUT
                 echo " ${_update_string}"
@@ -390,15 +390,15 @@ GetDataFiles() {
             ### STDOUT
             echo " Module run attempt ${_attempt}: failed [${BLLIST_MODULE}]"
             MakeLogRecord "err" "Module run attempt ${_attempt}: failed [${BLLIST_MODULE}]"
-            _attempt=`expr $_attempt + 1`
+            _attempt=$(($_attempt + 1))
             [ $_attempt -gt $MODULE_RUN_ATTEMPTS ] && break
             sleep $MODULE_RUN_TIMEOUT
         done
         if [ $_return_code -eq 0 ]; then
-            _update_string=`$AWK_CMD '{
+            _update_string="$($AWK_CMD '{
                 printf "Received entries: %s\n", (NF < 3) ? "No data" : "CIDR: "$1", IP: "$2", FQDN: "$3;
                 exit;
-            }' "$UPDATE_STATUS_FILE"`
+            }' "$UPDATE_STATUS_FILE")"
             ### STDOUT
             echo " ${_update_string}"
             MakeLogRecord "notice" "${_update_string}"

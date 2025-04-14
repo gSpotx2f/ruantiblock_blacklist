@@ -5,7 +5,7 @@ EXPIRED_DOMAINS_FILE="$1"
 EXPIRED_DOMAINS_FILE_TMP="${EXPIRED_DOMAINS_FILE}.tmp"
 EXPIRED_DOMAINS_FILE_MIN_LINES=20000
 
-WGET_CMD=$(which wget)
+WGET_CMD="$(which wget)"
 if [ $? -ne 0 ]; then
     echo " Error! Wget doesn't exists" >&2
     exit 1
