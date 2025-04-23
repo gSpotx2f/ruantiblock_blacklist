@@ -20,14 +20,14 @@ jobs:
               run: |
                 cd ./1.1
                 ./run_parser.sh ./ruantiblock_ip.conf ../blacklist-1.1/ip
-            - name: v0.9 - fqdn configuration
-              run: |
-                cd ./0.9
-                ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist/fqdn
-            - name: v0.9 - ip configuration
-              run: |
-                cd ./0.9
-                ./run_parser.sh ./ruantiblock_ip.conf ../blacklist/ip
+            # - name: v0.9 - fqdn configuration
+            #   run: |
+            #     cd ./0.9
+            #     ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist/fqdn
+            # - name: v0.9 - ip configuration
+            #   run: |
+            #     cd ./0.9
+            #     ./run_parser.sh ./ruantiblock_ip.conf ../blacklist/ip
             - name: commit
               run: |
                 git config user.name github-actions
