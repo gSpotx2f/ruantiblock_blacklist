@@ -77,6 +77,10 @@ export BLLIST_IP_FILTER_FILE="${CONFIG_DIR}/ip_filter"
 export BLLIST_IP_EXCLUDED_ENABLE=0
 ### Файл с записями IP/CIDR для опции BLLIST_IP_EXCLUDED_ENABLE
 export BLLIST_IP_EXCLUDED_FILE="${CONFIG_DIR}/ip_excluded"
+### Включение опции исключения IP/CIDR из блэклиста
+export BLLIST_CIDR_EXCLUDED_ENABLE=0
+### Файл с записями IP/CIDR для опции BLLIST_CIDR_EXCLUDED_ENABLE
+export BLLIST_CIDR_EXCLUDED_FILE="./cidr_excluded"
 ### Лимит субдоменов для группировки. При достижении, в конфиг dnsmasq будет добавлен весь домен 2-го ур-ня вместо множества субдоменов (0 - off)
 export BLLIST_SD_LIMIT=0
 ### Файл с SLD не подлежащими группировке при оптимизации (одна запись на строку)
