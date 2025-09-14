@@ -549,16 +549,17 @@ class OptimizeConfig(Config):
         self.output_fqdn_count = 0
 
     def _exclude_nets(self):
-        ip_dict = {}
-        for ip, subnet in self.ip_dict.items():
-            if not self.check_cidr_overlap(ip):
-                ip_dict[ip] = subnet
-        self.ip_dict = ip_dict
-        cidr_set = set()
-        for net in self.cidr_set:
-            if not self.check_cidr_overlap(net):
-                cidr_set.add(net)
-        self.cidr_set = cidr_set
+        if self.BLLIST_CIDR_EXCLUDED_ENABLE:
+            ip_dict = {}
+            for ip, subnet in self.ip_dict.items():
+                if not self.check_cidr_overlap(ip):
+                    ip_dict[ip] = subnet
+            self.ip_dict = ip_dict
+            cidr_set = set()
+            for net in self.cidr_set:
+                if not self.check_cidr_overlap(net):
+                    cidr_set.add(net)
+            self.cidr_set = cidr_set
 
     def _remove_subdomains(self):
         tld_dict = {}
@@ -602,13 +603,16 @@ class OptimizeConfig(Config):
         self.ip_dict = optimized_set
 
     def _group_ip_ranges(self):
-        for i in Summarize.summarize_ip_ranges(self.ip_dict, True):
-            self.cidr_set.add(i.with_prefixlen)
-        self.ip_count = len(self.ip_dict)
+        if self.BLLIST_SUMMARIZE_IP:
+            for i in Summarize.summarize_ip_ranges(self.ip_dict, True):
+                self.cidr_set.add(i.with_prefixlen)
+            self.ip_count = len(self.ip_dict)
 
     def _group_cidr_ranges(self):
-        for i in Summarize.summarize_nets(self.cidr_set):
-            self.cidr_set.add(i.with_prefixlen)
+        if self.BLLIST_SUMMARIZE_CIDR:
+            for i in Summarize.summarize_nets(self.cidr_set):
+                self.cidr_set.add(i.with_prefixlen)
+        self.cidr_count = len(self.cidr_set)
 
     def optimize(self):
         for i in self.parsers_list:
@@ -617,16 +621,12 @@ class OptimizeConfig(Config):
             self.ip_subnet_dict.update(i.ip_subnet_dict)
             self.fqdn_dict.update(i.fqdn_dict)
             self.sld_dict.update(i.sld_dict)
-        if self.BLLIST_CIDR_EXCLUDED_ENABLE:
-            self._exclude_nets()
+        self._exclude_nets()
         self._remove_subdomains()
         self._optimize_fqdn_dict()
         self._optimize_ip_dict()
-        if self.BLLIST_SUMMARIZE_IP:
-            self._group_ip_ranges()
-        if self.BLLIST_SUMMARIZE_CIDR:
-            self._group_cidr_ranges()
-        self.cidr_count = len(self.cidr_set)
+        self._group_ip_ranges()
+        self._group_cidr_ranges()
 
 
 class WriteConfigFiles(Config):
