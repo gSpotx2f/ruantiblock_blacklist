@@ -1,0 +1,25 @@
+name: Update expired domains
+run-name: Updating expired domains
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '16 20 * * 3'
+jobs:
+    update:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                python-version: '3.10'
+            - name: downloading expired domains
+              run: |
+                cd ./1.1
+                ./dl_expired_domains.sh ./fqdn_excluded
+            - name: commit
+              run: |
+                git config user.name github-actions
+                git config user.email github-actions@github.com
+                git add .
+                git commit -m "Expired domains updated: `date -u \"+%Y-%m-%d %H:%M %z\"`"
+                git push
