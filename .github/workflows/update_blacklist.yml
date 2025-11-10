@@ -2,8 +2,8 @@ name: Update ruantiblock blacklist
 run-name: Blacklist updating
 on:
     workflow_dispatch:
-    schedule:
-        #- cron: '37 10,22 * * *'
+    # schedule:
+    #     - cron: '37 10,22 * * *'
 jobs:
     update:
         runs-on: ubuntu-24.04

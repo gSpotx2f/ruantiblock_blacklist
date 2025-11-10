@@ -2,8 +2,8 @@ name: Update expired domains
 run-name: Updating expired domains
 on:
     workflow_dispatch:
-    schedule:
-        #- cron: '16 20 * * 3'
+    # schedule:
+    #     - cron: '16 20 * * 3'
 jobs:
     update:
         runs-on: ubuntu-24.04
