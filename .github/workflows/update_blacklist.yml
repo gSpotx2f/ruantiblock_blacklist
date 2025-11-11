@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
     schedule:
     #     - cron: '37 10,22 * * *'
-        - cron: '37 21 * * /3'
+        - cron: '37 21 * * */3'
 jobs:
     update:
         runs-on: ubuntu-24.04
