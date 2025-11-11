@@ -53,7 +53,9 @@ class Config:
         "RBL_IP_URL",
         "RBL_DPI_URL",
         "ZI_ALL_URL",
+        "AF_IP_FULL_URL",
         "AF_IP_URL",
+        "AF_NET_URL",
         "AF_FQDN_URL",
         "FZ_URL",
         "DL_IPSET_URL",
@@ -96,7 +98,9 @@ class Config:
             "RBL_IP_URL",
             "RBL_DPI_URL",
             "ZI_ALL_URL",
+            "AF_IP_FULL_URL",
             "AF_IP_URL",
+            "AF_NET_URL",
             "AF_FQDN_URL",
             "FZ_URL",
             "DL_IPSET_URL",
@@ -684,7 +688,7 @@ class WriteConfigFiles(Config):
                 f"{cidr_count} {ip_count} {fqdn_count}")
 
 
-class RblFQDN(BlackListParser):
+class RblHybrid(BlackListParser):
     def __init__(self):
         super().__init__()
         self.url = self.RBL_ALL_URL
@@ -735,7 +739,25 @@ class RblDPI(BlackListParser):
                         except FieldValueError:
                             pass
 
-class RblIp(RblFQDN):
+
+class RblFQDN(RblHybrid):
+    def parser_func(self):
+        for url in self.url:
+            for entry in self._split_entries(url):
+                org = self.org_value_regexp.search(entry)
+                if not org or not self.org_value_processing(org.group(1)):
+                    res = self.entry_regexp.search(entry)
+                    if not res:
+                        continue
+                    fqdn_string = res.group(1)
+                    if fqdn_string:
+                        try:
+                            self.fqdn_value_processing(fqdn_string)
+                        except FieldValueError:
+                            pass
+
+
+class RblIp(RblHybrid):
     def parser_func(self):
         for url in self.url:
             for entry in self._split_entries(url):
@@ -750,7 +772,7 @@ class RblIp(RblFQDN):
                                 self.ip_value_processing(i)
 
 
-class ZiFQDN(BlackListParser):
+class ZiHybrid(BlackListParser):
     def __init__(self):
         super().__init__()
         self.url = self.ZI_ALL_URL
@@ -787,7 +809,23 @@ class ZiFQDN(BlackListParser):
                     pass
 
 
-class ZiIp(ZiFQDN):
+class ZiFQDN(ZiHybrid):
+    def parser_func(self):
+        for url in self.url:
+            for entry in self._split_entries(url):
+                entry_list = entry.split(self.fields_separator)
+                try:
+                    if not entry_list[3] or not self.org_value_processing(entry_list[3]):
+                        if entry_list[1]:
+                            try:
+                                self.fqdn_value_processing(entry_list[1])
+                            except FieldValueError:
+                                pass
+                except IndexError:
+                    pass
+
+
+class ZiIp(ZiHybrid):
     def parser_func(self):
         for url in self.url:
             for entry in self._split_entries(url):
@@ -811,7 +849,19 @@ class AfFQDN(BlackListParser):
                 try:
                     self.fqdn_value_processing(entry)
                 except FieldValueError:
-                    self.ip_value_processing(entry)
+                    pass
+
+
+class AfIpFull(BlackListParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.url = self.AF_IP_FULL_URL
+        self.entry_regexp = re.compile(r"/32$")
+
+    def parser_func(self):
+        for url in self.url:
+            for entry in self._split_entries(url):
+                self.ip_value_processing(self.entry_regexp.sub("", entry))
 
 
 class AfIp(BlackListParser):
@@ -825,7 +875,19 @@ class AfIp(BlackListParser):
                 self.ip_value_processing(entry)
 
 
-class FzFQDN(BlackListParser):
+class AfNet(BlackListParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.BLLIST_MIN_ENTRIES = 0
+        self.url = self.AF_NET_URL
+
+    def parser_func(self):
+        for url in self.url:
+            for entry in self._split_entries(url):
+                self.ip_value_processing(entry)
+
+
+class FzHybrid(BlackListParser):
     def __init__(self):
         super().__init__()
         self.url = self.FZ_URL
@@ -857,7 +919,21 @@ class FzFQDN(BlackListParser):
                             self.ip_value_processing(i.group(1))
 
 
-class FzIp(FzFQDN):
+class FzFQDN(FzHybrid):
+    def parser_func(self):
+        for url in self.url:
+            for entry in self._split_entries(url):
+                org = self.org_value_regexp.search(entry)
+                if not org or not self.org_value_processing(org.group(1)):
+                    res = self.fqdn_value_regexp.search(entry)
+                    if res and res.group(1):
+                        try:
+                            self.fqdn_value_processing(res.group(1))
+                        except FieldValueError:
+                            pass
+
+
+class FzIp(FzHybrid):
     def parser_func(self):
         for url in self.url:
             for entry in self._split_entries(url):
@@ -919,8 +995,18 @@ if __name__ == "__main__":
     Config.load_cidr_excluded()
     Config.load_org_excluded()
     parsers_dict = {
-        "ip": {"rublacklist": [RblIp], "zapret-info": [ZiIp], "antifilter": [AfIp], "fz": [FzIp], "ruantiblock": [Ra]},
-        "fqdn": {"rublacklist": [RblFQDN, RblDPI], "zapret-info": [ZiFQDN], "antifilter": [AfFQDN], "fz": [FzFQDN], "ruantiblock": [Ra]},
+        "ip": {
+            "rublacklist": [RblIp], "zapret-info": [ZiIp],
+            "antifilter": [AfIpFull, AfNet], "fz": [FzIp], "ruantiblock": [Ra],
+        },
+        "fqdn": {
+            "rublacklist": [RblHybrid, RblDPI], "zapret-info": [ZiHybrid],
+            "antifilter": [AfFQDN, AfIp, AfNet], "fz": [FzHybrid], "ruantiblock": [Ra],
+        },
+        "fqdn-only": {
+            "rublacklist": [RblFQDN, RblDPI], "zapret-info": [ZiFQDN],
+            "antifilter": [AfFQDN], "fz": [FzFQDN], "ruantiblock": [Ra],
+        },
     }
     try:
         parser_classes = parsers_dict[Config.BLLIST_MODE][Config.BLLIST_SOURCE]
