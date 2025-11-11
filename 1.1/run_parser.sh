@@ -134,6 +134,7 @@ export AF_IP_FULL_URL="https://antifilter.download/list/ipresolve.lst"
 export AF_IP_URL="https://antifilter.download/list/ip.lst"
 export AF_NET_URL="https://antifilter.download/list/subnet.lst"
 export AF_FQDN_URL="https://antifilter.download/list/domains.lst"
+export AF_ENCODING=""
 ## fz
 export FZ_URL="https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.00 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.01 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.02"
 export FZ_ENCODING="CP1251"
