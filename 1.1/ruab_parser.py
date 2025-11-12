@@ -1001,7 +1001,7 @@ if __name__ == "__main__":
         },
         "fqdn": {
             "rublacklist": [RblHybrid, RblDPI], "zapret-info": [ZiHybrid],
-            "antifilter": [AfFQDN, AfIp, AfNet], "fz": [FzHybrid], "ruantiblock": [Ra],
+            "antifilter": [AfFQDN, AfNet], "fz": [FzHybrid], "ruantiblock": [Ra],
         },
         "fqdn-only": {
             "rublacklist": [RblFQDN, RblDPI], "zapret-info": [ZiFQDN],
