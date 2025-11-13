@@ -3,7 +3,6 @@ run-name: Blacklist updating
 on:
     workflow_dispatch:
     schedule:
-    #     - cron: '37 10,22 * * *'
         - cron: '37 21 */3 * *'
 jobs:
     update:
@@ -13,22 +12,10 @@ jobs:
             - uses: actions/setup-python@v5
               with:
                 python-version: '3.12'
-            # - name: v1.1 - fqdn configuration
-            #   run: |
-            #     cd ./1.1
-            #     ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-1.1/fqdn
             - name: v1.1 - ip configuration
               run: |
                 cd ./1.1
                 ./run_parser.sh ./ruantiblock_ip.conf ../blacklist-1.1/ip
-            # - name: v0.9 - fqdn configuration
-            #   run: |
-            #     cd ./0.9
-            #     ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist/fqdn
-            # - name: v0.9 - ip configuration
-            #   run: |
-            #     cd ./0.9
-            #     ./run_parser.sh ./ruantiblock_ip.conf ../blacklist/ip
             - name: commit
               run: |
                 git config user.name github-actions
