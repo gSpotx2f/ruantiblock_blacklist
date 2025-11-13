@@ -1,4 +1,4 @@
-name: Update ruantiblock blacklist
+name: Update ruantiblock blacklist (fqdn)
 run-name: Blacklist updating
 on:
     workflow_dispatch:
