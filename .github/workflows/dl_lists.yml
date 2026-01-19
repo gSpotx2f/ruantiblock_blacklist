@@ -1,5 +1,5 @@
-name: Update ruantiblock blacklist
-run-name: Blacklist updating
+name: Download blacklists
+run-name: Downloading lists
 on:
     workflow_dispatch:
     schedule:
