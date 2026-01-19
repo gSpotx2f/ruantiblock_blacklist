@@ -8,6 +8,7 @@ jobs:
     update:
         runs-on: ubuntu-24.04
         steps:
+            - uses: actions/checkout@v4
             - name: downloading lists
               run: |
                 cd ./_downloads
