@@ -14,7 +14,8 @@ jobs:
                 python-version: '3.12'
             - name: downloading expired domains
               run: |
-                ./dl_expired_domains.sh ./_expired_domains/fqdn_excluded
+                cd ./_expired_domains
+                ./dl_expired_domains.sh ./fqdn_excluded
             - name: commit
               run: |
                 git config user.name github-actions
