@@ -1,0 +1,21 @@
+name: Update ruantiblock blacklist
+run-name: Blacklist updating
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '22 22 * * *'
+jobs:
+    update:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: downloading lists
+              run: |
+                cd ./_downloads
+                ./dl_lists.sh
+            - name: commit
+              run: |
+                git config user.name github-actions
+                git config user.email github-actions@github.com
+                git add .
+                git commit -m "Lists downloaded: $(date -u "+%Y-%m-%d %H:%M %z")"
+                git push
