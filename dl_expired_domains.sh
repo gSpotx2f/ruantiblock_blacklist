@@ -5,7 +5,7 @@ EXPIRED_DOMAINS_FILE="$1"
 EXPIRED_DOMAINS_FILE_TMP="${EXPIRED_DOMAINS_FILE}.tmp"
 EXPIRED_DOMAINS_FILE_MIN_LINES=20000
 
-WGET_CMD="$(which wget)"
+WGET_CMD=$(which wget)
 if [ $? -ne 0 ]; then
     echo " Error! Wget doesn't exists" >&2
     exit 1
@@ -24,7 +24,7 @@ Main() {
     local _lines=0 _ret_code=1
     Download "$EXPIRED_DOMAINS_FILE_TMP" "$EXPIRED_DOMAINS_URL"
     if [ $? -eq 0 -a -e "$EXPIRED_DOMAINS_FILE_TMP" ]; then
-        _lines=$(cat "$EXPIRED_DOMAINS_FILE_TMP" | wc -l)
+        _lines=$(head -n $EXPIRED_DOMAINS_FILE_MIN_LINES "$EXPIRED_DOMAINS_FILE_TMP" | wc -l)
         if [ $_lines -ge $EXPIRED_DOMAINS_FILE_MIN_LINES ]; then
             mv -f "$EXPIRED_DOMAINS_FILE_TMP" "$EXPIRED_DOMAINS_FILE"
             _ret_code=0
