@@ -345,7 +345,7 @@ GetDataFiles() {
         done
         if [ $_return_code -eq 0 ]; then
             _update_string="$($AWK_CMD '{
-                printf "Received entries: %s\n", (NF < 2) ? "No data" : "IP: "$2", FQDN: "$3;
+                printf "Received entries: %s\n", (NF < 2) ? "No data" : "IP: "$1", FQDN: "$2;
                 exit;
             }' "$UPDATE_STATUS_FILE")"
             ### STDOUT
