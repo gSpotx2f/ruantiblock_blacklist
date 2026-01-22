@@ -35,3 +35,4 @@ jobs:
                 git add .
                 git commit -m "Blacklist updated: $(date -u "+%Y-%m-%d %H:%M %z")"
                 git push
+                exit 0

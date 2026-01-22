@@ -20,3 +20,4 @@ jobs:
                 git add .
                 git commit -m "Lists downloaded: $(date -u "+%Y-%m-%d %H:%M %z")"
                 git push
+                exit 0
