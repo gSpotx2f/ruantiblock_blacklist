@@ -68,5 +68,15 @@ if [ $? -eq 0 ]; then
     exit_code=0
 fi
 
+### commit
+
+if [ $exit_code -eq 0 ]; then
+    git config user.name github-actions
+    git config user.email github-actions@github.com
+    git add .
+    git commit -m "Lists downloaded: $(date -u "+%Y-%m-%d %H:%M %z")"
+    git push
+fi
+
 
 exit $exit_code
