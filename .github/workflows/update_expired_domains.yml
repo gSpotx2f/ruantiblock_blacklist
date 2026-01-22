@@ -13,11 +13,3 @@ jobs:
               run: |
                 cd ./_expired_domains
                 ./dl_expired_domains.sh ./fqdn_excluded
-            - name: commit
-              run: |
-                git config user.name github-actions
-                git config user.email github-actions@github.com
-                git add .
-                git commit -m "Expired domains updated: $(date -u "+%Y-%m-%d %H:%M %z")"
-                git push
-                exit 0

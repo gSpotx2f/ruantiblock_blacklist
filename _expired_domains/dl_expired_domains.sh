@@ -37,8 +37,17 @@ Main() {
 }
 
 if [ -n "$EXPIRED_DOMAINS_FILE" ]; then
+    exit_code=1
     Main $1
-    exit $?
+    exit_code=$?
+    if [ $exit_code -eq 0 ]; then
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Expired domains updated: $(date -u "+%Y-%m-%d %H:%M %z")"
+        git push
+    fi
+    exit $exit_code
 fi
 
 echo " Usage: $(basename $0) <output file>" >&2
