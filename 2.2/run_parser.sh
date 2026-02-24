@@ -48,8 +48,8 @@ export MODULE_RUN_ATTEMPTS=3
 ### Таймаут между попытками обновления
 export MODULE_RUN_TIMEOUT=60
 ### Модули для получения и обработки блэклиста
-#BLLIST_MODULE="${MODULES_DIR}/ruab_parser.lua"
-BLLIST_MODULE="${MODULES_DIR}/ruab_parser.py"
+#BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.lua"
+BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.py"
 
 ############################## Parsers #################################
 
@@ -118,9 +118,12 @@ fi
 
 ### Blacklist sources
 ## rublacklist
-export RBL_ALL_URL="https://reestr.rublacklist.net/api/v3/snapshot/"
-export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
-export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
+# export RBL_ALL_URL="https://reestr.rublacklist.net/api/v3/snapshot/"
+# export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
+# export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
+export RBL_ALL_URL="https://blockedin.org/api/v3/snapshot/"
+export RBL_IP_URL="https://blockedin.org/api/v3/ips/"
+export RBL_DPI_URL="https://blockedin.org/api/v3/dpi/"
 export RBL_ENCODING=""
 ## zapret-info
 #export ZI_ALL_URL="https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-00.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-01.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-02.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-03.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-04.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-05.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-06.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-07.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-08.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-09.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-10.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-11.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-12.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-13.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-14.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-15.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-16.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-17.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-18.csv https://raw.githubusercontent.com/zapret-info/z-i/refs/heads/master/dump-19.csv"
@@ -128,10 +131,15 @@ export RBL_ENCODING=""
 export ZI_ALL_URL="https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-00.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-01.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-02.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-03.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-04.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-05.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-06.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-07.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-08.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-09.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-10.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-11.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-12.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-13.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-14.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-15.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-16.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-17.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-18.csv?format=raw https://sourceforge.net/p/zapret-info/code/HEAD/tree/dump-19.csv?format=raw"
 export ZI_ENCODING="CP1251"
 ## antifilter
-export AF_IP_FULL_URL="https://antifilter.download/list/ipresolve.lst"
-export AF_IP_URL="https://antifilter.download/list/ip.lst"
-export AF_NET_URL="https://antifilter.download/list/subnet.lst"
-export AF_FQDN_URL="https://antifilter.download/list/domains.lst"
+# export AF_IP_FULL_URL="https://antifilter.download/list/ipresolve.lst"
+# export AF_IP_URL="https://antifilter.download/list/ip.lst"
+# export AF_NET_URL="https://antifilter.download/list/subnet.lst"
+# export AF_FQDN_URL="https://antifilter.download/list/domains.lst"
+export AF_IP_FULL_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/refs/heads/master/_downloads/af/ipresolve.lst"
+export AF_IP_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/refs/heads/master/_downloads/af/ip.lst"
+export AF_NET_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/refs/heads/master/_downloads/af/subnet.lst"
+export AF_FQDN_URL="https://raw.githubusercontent.com/gSpotx2f/ruantiblock_blacklist/refs/heads/master/_downloads/af/domains.lst"
+export AF_ENCODING=""
 ## fz
 export FZ_URL="https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.00 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.01 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.02 https://raw.githubusercontent.com/fz139/vigruzki/main/dump.xml.03"
 export FZ_ENCODING="CP1251"

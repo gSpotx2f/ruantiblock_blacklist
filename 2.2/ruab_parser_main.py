@@ -973,14 +973,13 @@ if __name__ == "__main__":
     Config.load_ip_excluded()
     Config.load_cidr_excluded()
     Config.load_org_excluded()
-
     parsers_dict = {
         "ip": {
             "rublacklist": [RblIp], "zapret-info": [ZiIp],
             "antifilter": [AfIpFull, AfNet], "fz": [FzIp], "ruantiblock": [Ra],
         },
         "fqdn": {
-            "rublacklist": [RblHybrid, RblDPI], "zapret-info": [ZiHybrid],
+            "rublacklist": [RblFQDN, AfNet], "zapret-info": [ZiHybrid],
             "antifilter": [AfFQDN, AfNet], "fz": [FzHybrid], "ruantiblock": [Ra],
         },
         "fqdn-only": {
