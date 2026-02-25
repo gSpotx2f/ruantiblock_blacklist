@@ -1,5 +1,5 @@
 name: Update ruantiblock 2.2 blacklist
-run-name: Blacklist updating
+run-name: Blacklist updating 2.2
 on:
     workflow_dispatch:
     schedule:
