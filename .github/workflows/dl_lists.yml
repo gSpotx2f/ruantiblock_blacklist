@@ -3,7 +3,7 @@ run-name: Downloading lists
 on:
     workflow_dispatch:
     schedule:
-        - cron: '22 22 * * *'
+        - cron: '12 21 * * *'
 jobs:
     update:
         runs-on: ubuntu-24.04

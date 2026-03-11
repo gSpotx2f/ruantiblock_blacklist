@@ -3,7 +3,7 @@ run-name: Blacklist updating 2.2
 on:
     workflow_dispatch:
     schedule:
-        - cron: '13 0 * * *'
+        - cron: '13 23 * * *'
 jobs:
     update:
         runs-on: ubuntu-24.04
