@@ -1,0 +1,15 @@
+name: Download blacklists
+run-name: Downloading lists
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '12 21 * * *'
+jobs:
+    update:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+            - name: downloading lists
+              run: |
+                cd ./_downloads
+                ./dl_lists.sh

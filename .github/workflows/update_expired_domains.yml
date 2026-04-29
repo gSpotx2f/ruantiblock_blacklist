@@ -1,0 +1,15 @@
+name: Update expired domains
+run-name: Updating expired domains
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '16 19 * * 3'
+jobs:
+    update:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+            - name: downloading expired domains
+              run: |
+                cd ./_expired_domains
+                ./dl_expired_domains.sh ./fqdn_excluded
