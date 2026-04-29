@@ -1,0 +1,29 @@
+name: Update ruantiblock 3.0 blacklist
+run-name: Blacklist updating 3.0
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '13 23 * * *'
+jobs:
+    update:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+            - name: v3.0 - fqdn configuration
+              run: |
+                cd ./3.0
+                ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-3.0/fqdn
+            - name: v3.0 - ip configuration
+              run: |
+                cd ./3.0
+                ./run_parser.sh ./ruantiblock_ip.conf ../blacklist-3.0/ip
+            - name: commit
+              run: |
+                git config user.name github-actions
+                git config user.email github-actions@github.com
+                git add .
+                git commit -m "Blacklist updated: $(date -u "+%Y-%m-%d %H:%M %z")"
+                git push
