@@ -20,6 +20,12 @@ from urllib import request
 
 
 class Config:
+    ip_pattern = re.compile(r"(([0-9]{1,3}[.]){3})[0-9]{1,3}")
+    cidr_pattern = re.compile(r"([0-9]{1,3}[.]){3}[0-9]{1,3}/[0-9]{1,2}")
+    fqdn_pattern = re.compile(
+        r"([а-яёa-z0-9_.*-]*?)([а-яёa-z0-9_-]+[.][а-яёa-z0-9-]+)", re.U)
+    www_pattern = re.compile(r"^www[0-9]?[.]")
+    cyr_pattern = re.compile(r"[а-яё]", re.U)
     environ_list = [
         "BLLIST_SOURCE",
         "BLLIST_MODE",
@@ -236,6 +242,14 @@ class Config:
                         return True
         return False
 
+    def _get_subnet(self, ip_addr):
+        regexp_obj = self.ip_pattern.fullmatch(ip_addr)
+        return regexp_obj.group(1) if regexp_obj else None
+
+    def _get_sld(self, fqdn):
+        regexp_obj = self.fqdn_pattern.fullmatch(fqdn)
+        return regexp_obj.group(2) if regexp_obj else None
+
 
 class ParserError(Exception):
     def __init__(self, reason=None):
@@ -252,16 +266,10 @@ class FieldValueError(ParserError):
 
 class BlackListParser(Config):
     def __init__(self):
-        self.ip_pattern = re.compile(r"(([0-9]{1,3}[.]){3})[0-9]{1,3}")
-        self.cidr_pattern = re.compile(r"([0-9]{1,3}[.]){3}[0-9]{1,3}/[0-9]{1,2}")
-        self.fqdn_pattern = re.compile(
-            r"([а-яёa-z0-9_.*-]*?)([а-яёa-z0-9_-]+[.][а-яёa-z0-9-]+)", re.U)
-        self.www_pattern = re.compile(r"^www[0-9]?[.]")
-        self.cyr_pattern = re.compile(r"[а-яё]", re.U)
         self.cidr_set = set()
-        self.ip_dict = {}
+        self.ip_set = set()
         self.ip_subnet_dict = {}
-        self.fqdn_dict = {}
+        self.fqdn_set = set()
         self.sld_dict = {}
         self.cidr_count = 0
         self.ip_count = 0
@@ -359,24 +367,20 @@ class BlackListParser(Config):
                 except UnicodeError:
                     pass
 
-    def _get_subnet(self, ip_addr):
-        regexp_obj = self.ip_pattern.fullmatch(ip_addr)
-        return regexp_obj.group(1) if regexp_obj else None
-
     def ip_value_processing(self, value):
         if self.BLLIST_IP_EXCLUDED_ENABLE and value in self.BLLIST_IP_EXCLUDED_ITEMS:
             return
         if self.BLLIST_IP_FILTER and self._check_filter(
             value, self.BLLIST_IP_FILTER_PATTERNS, self.BLLIST_IP_FILTER_TYPE):
             return
-        if self.ip_pattern.fullmatch(value) and value not in self.ip_dict:
+        if self.ip_pattern.fullmatch(value) and value not in self.ip_set:
             subnet = self._get_subnet(value)
-            if subnet in self.BLLIST_GR_EXCLUDED_NETS_PATTERNS or (
+            if subnet and (subnet in self.BLLIST_GR_EXCLUDED_NETS_PATTERNS or (
                 not self.BLLIST_IP_LIMIT or (
                     subnet not in self.ip_subnet_dict or self.ip_subnet_dict[subnet] < self.BLLIST_IP_LIMIT
                 )
-            ):
-                self.ip_dict[value] = subnet
+            )):
+                self.ip_set.add(value)
                 self.ip_subnet_dict[subnet] = (self.ip_subnet_dict.get(subnet) or 0) + 1
         elif self.cidr_pattern.fullmatch(value):
             self.cidr_set.add(value)
@@ -393,10 +397,6 @@ class BlackListParser(Config):
                 raise FieldValueError()
         return string
 
-    def _get_sld(self, fqdn):
-        regexp_obj = self.fqdn_pattern.fullmatch(fqdn)
-        return regexp_obj.group(2) if regexp_obj else None
-
     def fqdn_value_processing(self, value):
         if self.ip_pattern.fullmatch(value):
             raise FieldValueError()
@@ -412,13 +412,13 @@ class BlackListParser(Config):
             if self.fqdn_pattern.fullmatch(value):
                 value = self._convert_to_punycode(value)
                 sld = self._get_sld(value)
-                if (sld in self.BLLIST_GR_EXCLUDED_SLD_PATTERNS or self.check_sld_masks(sld)) or (
+                if sld and ((sld in self.BLLIST_GR_EXCLUDED_SLD_PATTERNS or self.check_sld_masks(sld)) or (
                     not self.BLLIST_SD_LIMIT or (
                         sld not in self.sld_dict or self.sld_dict[sld] < self.BLLIST_SD_LIMIT
                     )
-                ):
+                )):
                     self.sld_dict[sld] = (self.sld_dict.get(sld) or 0) + 1
-                    self.fqdn_dict[value] = sld
+                    self.fqdn_set.add(value)
             else:
                 raise FieldValueError()
 
@@ -438,7 +438,7 @@ class BlackListParser(Config):
         self.BLLIST_IP_FILTER_PATTERNS = self._compile_filter_patterns(self.BLLIST_IP_FILTER_PATTERNS)
         self.records_separator = bytes(self.records_separator, "utf-8")
         self.parser_func()
-        if (len(self.ip_dict) + len(self.cidr_set) + len(self.fqdn_dict)) >= self.BLLIST_MIN_ENTRIES:
+        if (len(self.ip_set) + len(self.cidr_set) + len(self.fqdn_set)) >= self.BLLIST_MIN_ENTRIES:
             ret_value = 0
         else:
             ret_value = 2
@@ -452,6 +452,7 @@ class BlackListParser(Config):
 
 
 class Summarize:
+
     HOSTS_LIMIT = 0
     NETS_LIMIT = 0
 
@@ -545,9 +546,9 @@ class OptimizeConfig(Config):
     def __init__(self, parsers_list):
         self.parsers_list = parsers_list
         self.cidr_set = set()
-        self.ip_dict = {}
+        self.ip_set = set()
         self.ip_subnet_dict = {}
-        self.fqdn_dict = {}
+        self.fqdn_set = set()
         self.sld_dict = {}
         self.cidr_count = 0
         self.ip_count = 0
@@ -555,11 +556,11 @@ class OptimizeConfig(Config):
 
     def _exclude_nets(self):
         if self.BLLIST_CIDR_EXCLUDED_ENABLE:
-            ip_dict = {}
-            for ip, subnet in self.ip_dict.items():
+            ip_set = set()
+            for ip in self.ip_set:
                 if not self.check_cidr_overlap(ip):
-                    ip_dict[ip] = subnet
-            self.ip_dict = ip_dict
+                    ip_set.add(ip)
+            self.ip_set = ip_set
             cidr_set = set()
             for net in self.cidr_set:
                 if not self.check_cidr_overlap(net):
@@ -568,20 +569,23 @@ class OptimizeConfig(Config):
 
     def _remove_subdomains(self):
         tld_dict = {}
-        for fqdn, sld in self.fqdn_dict.items():
-            tld_dict.setdefault(sld, [])
-            tld_dict[sld].append(fqdn)
+        for fqdn in self.fqdn_set:
+            sld = self._get_sld(fqdn)
+            if sld:
+                tld_dict.setdefault(sld, [])
+                tld_dict[sld].append(fqdn)
         for v in tld_dict.values():
             for i in v:
-                if i in self.fqdn_dict:
+                if i in self.fqdn_set:
                     for j in v:
                         if (j != i) and j.endswith("." + i):
-                            self.fqdn_dict.pop(j, None)
+                            self.fqdn_set.discard(j)
 
-    def _optimize_fqdn_dict(self):
+    def _optimize_fqdn_set(self):
         optimized_set = set()
-        for fqdn, sld in self.fqdn_dict.items():
-            if sld and (fqdn == sld or sld not in self.fqdn_dict) and self.sld_dict.get(sld):
+        for fqdn in self.fqdn_set:
+            sld = self._get_sld(fqdn)
+            if sld and (fqdn == sld or sld not in self.fqdn_set) and self.sld_dict.get(sld):
                 if (not self.check_sld_masks(sld) and (
                         self.BLLIST_SD_LIMIT and sld not in self.BLLIST_GR_EXCLUDED_SLD_PATTERNS
                 )) and (self.sld_dict[sld] >= self.BLLIST_SD_LIMIT):
@@ -591,11 +595,14 @@ class OptimizeConfig(Config):
                     record_value = fqdn
                 optimized_set.add(record_value)
                 self.output_fqdn_count += 1
-        self.fqdn_dict = optimized_set
+        self.fqdn_set = optimized_set
 
-    def _optimize_ip_dict(self):
+    def _optimize_ip_set(self):
         optimized_set = set()
-        for ip_addr, subnet in self.ip_dict.items():
+        for ip_addr in self.ip_set:
+            subnet = self._get_subnet(ip_addr)
+            if not subnet:
+                continue
             if subnet in self.ip_subnet_dict:
                 if subnet not in self.BLLIST_GR_EXCLUDED_NETS_PATTERNS and (
                     self.BLLIST_IP_LIMIT and self.ip_subnet_dict[subnet] >= self.BLLIST_IP_LIMIT
@@ -605,13 +612,13 @@ class OptimizeConfig(Config):
                 else:
                     optimized_set.add(ip_addr)
                     self.ip_count += 1
-        self.ip_dict = optimized_set
+        self.ip_set = optimized_set
 
     def _group_ip_ranges(self):
         if self.BLLIST_SUMMARIZE_IP:
-            for i in Summarize.summarize_ip_ranges(self.ip_dict, True):
+            for i in Summarize.summarize_ip_ranges(self.ip_set, True):
                 self.cidr_set.add(i.with_prefixlen)
-            self.ip_count = len(self.ip_dict)
+            self.ip_count = len(self.ip_set)
 
     def _group_cidr_ranges(self):
         if self.BLLIST_SUMMARIZE_CIDR:
@@ -622,14 +629,14 @@ class OptimizeConfig(Config):
     def optimize(self):
         for i in self.parsers_list:
             self.cidr_set |= i.cidr_set
-            self.ip_dict.update(i.ip_dict)
+            self.ip_set |= i.ip_set
             self.ip_subnet_dict.update(i.ip_subnet_dict)
-            self.fqdn_dict.update(i.fqdn_dict)
+            self.fqdn_set |= i.fqdn_set
             self.sld_dict.update(i.sld_dict)
         self._exclude_nets()
         self._remove_subdomains()
-        self._optimize_fqdn_dict()
-        self._optimize_ip_dict()
+        self._optimize_fqdn_set()
+        self._optimize_ip_set()
         self._group_ip_ranges()
         self._group_cidr_ranges()
 
@@ -638,24 +645,24 @@ class WriteConfigFiles(Config):
     def __init__(self):
         self.write_buffer = -1
 
-    def write_ipset_config(self, ip_dict, cidr_set):
+    def write_ipset_config(self, ip_set, cidr_set):
         with open(self.IP_DATA_FILE, "wt", buffering=self.write_buffer) as file_handler:
             file_handler.write("flush set {} {}\n".format(self.NFT_TABLE, self.NFTSET_IP))
             file_handler.write(
                 "table {} {{\n{}".format(self.NFT_TABLE, self.NFTSET_IP_STRING_MAIN)
             )
-            if len(cidr_set) > 0 or len(ip_dict) > 0:
+            if len(cidr_set) > 0 or len(ip_set) > 0:
                 file_handler.write("elements={")
                 for i in cidr_set:
                     file_handler.write(f"{i},")
-                for i in ip_dict:
+                for i in ip_set:
                     file_handler.write(f"{i},")
                 file_handler.write("};")
             file_handler.write("}\n}\n")
 
-    def write_dnsmasq_config(self, fqdn_dict):
+    def write_dnsmasq_config(self, fqdn_set):
         with open(self.DNSMASQ_DATA_FILE, "wt", buffering=self.write_buffer) as file_handler:
-            for fqdn in fqdn_dict:
+            for fqdn in fqdn_set:
                 file_handler.write(
                     f"server=/{fqdn}/{self.BLLIST_ALT_DNS_ADDR}\nnftset=/{fqdn}/{self.NFT_TABLE_DNSMASQ}#{self.NFTSET_DNSMASQ}\n"
                     if self.BLLIST_ALT_NSLOOKUP else
@@ -999,7 +1006,7 @@ if __name__ == "__main__":
         oc_obj = OptimizeConfig(parser_instances)
         oc_obj.optimize()
         write_cfg_obj = WriteConfigFiles()
-        write_cfg_obj.write_dnsmasq_config(oc_obj.fqdn_dict)
-        write_cfg_obj.write_ipset_config(oc_obj.ip_dict, oc_obj.cidr_set)
+        write_cfg_obj.write_dnsmasq_config(oc_obj.fqdn_set)
+        write_cfg_obj.write_ipset_config(oc_obj.ip_set, oc_obj.cidr_set)
         write_cfg_obj.write_update_status_file(oc_obj.ip_count, oc_obj.cidr_count, oc_obj.output_fqdn_count)
     sys.exit(1 if 1 in ret_list else (2 if 2 in ret_list else 0))
