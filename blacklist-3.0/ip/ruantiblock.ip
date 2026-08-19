@@ -5,3 +5,6 @@ set i {type ipv4_addr;size 1000000;policy memory;flags interval;auto-merge;eleme
 table ip r {
 set i {type ipv4_addr;size 1000000;policy memory;flags interval;auto-merge;elements={157.240.0.0/16,104.244.40.0/21,};}
 }
+table ip r {
+set i {type ipv4_addr;size 1000000;policy memory;flags interval;auto-merge;elements={157.240.0.0/16,104.244.40.0/21,};}
+}
