@@ -49,7 +49,8 @@ export MODULE_RUN_ATTEMPTS=3
 export MODULE_RUN_TIMEOUT=60
 ### Модули для получения и обработки блэклиста
 #BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.lua"
-BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.py"
+#BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.py"
+BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main"
 
 ############################## Parsers #################################
 
