@@ -21,9 +21,11 @@ export MODULES_DIR="."
 ### Запись событий в syslog (0 - off, 1 - on)
 export ENABLE_LOGGING=1
 ### Максимальное кол-во элементов списка nftables
+#export NFTSET_MAXELEM_CIDR=65535
 export NFTSET_MAXELEM_IP=1000000
 export NFTSET_MAXELEM_DNSMASQ=65535
 ### Политика отбора элементов в сетах nftables. "performance" - производительность и большее потребление RAM. "memory" - хуже производительность и меньше потребление RAM
+#export NFTSET_POLICY_CIDR="memory"
 export NFTSET_POLICY_IP="memory"
 export NFTSET_POLICY_DNSMASQ="performance"
 ### Добавление в список блокировок пользовательских записей из файла $USER_ENTRIES_FILE (0 - off, 1 - on)
@@ -49,24 +51,31 @@ export MODULE_RUN_ATTEMPTS=3
 export MODULE_RUN_TIMEOUT=60
 ### Модули для получения и обработки блэклиста
 #BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.lua"
-#BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.py"
-BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main"
+BLLIST_MODULE="${MODULES_DIR}/ruab_parser_main.py"
 
 ############################## Parsers #################################
 
+# ### Тип протокола IP для модулей блэклиста (0 - IPv4, 1 - IPv6, 2 - IPv4 и IPv6)
+export BLLIST_IP_FAMILY=0
 ### Режим обхода блокировок: zapret-info-ip, zapret-info-fqdn, zapret-info-fqdn-only, rublacklist-ip, rublacklist-fqdn, rublacklist-fqdn-only, antifilter-ip, antifilter-fqdn, antifilter-fqdn-only, fz-ip, fz-fqdn, fz-fqdn-only
 export BLLIST_PRESET=""
 ### В случае если из источника получено менее указанного кол-ва записей, то обновления списков не происходит
 export BLLIST_MIN_ENTRIES=30000
-### Лимит IP адресов. При достижении, в конфиг ipset будет добавлена вся подсеть /24 вместо множества IP адресов пренадлежащих этой сети (0 - off)
+### Лимит IP адресов. При достижении, в конфиг nftables будет добавлена вся подсеть /24 вместо множества IP адресов пренадлежащих этой сети (0 - off)
 export BLLIST_IP_LIMIT=0
+### Лимит IPv6 адресов. При достижении, в конфиг nftables будет добавлена вся подсеть /64 вместо множества IPv6 адресов пренадлежащих этой сети (0 - off)
+export BLLIST_IP6_LIMIT=0
 ### Файл с подсетями класса C (/24). IP адреса из этих подсетей не группируются при оптимизации (записи д.б. в виде: 68.183.221. 149.154.162. и пр. Одна запись на строку)
 export BLLIST_GR_EXCLUDED_NETS_FILE="${CONFIG_DIR}/gr_excluded_nets"
 ### Группировать идущие подряд IP адреса в подсетях /24 в диапазоны CIDR
 export BLLIST_SUMMARIZE_IP=0
 ### Группировать идущие подряд подсети /24 в диапазоны CIDR
 export BLLIST_SUMMARIZE_CIDR=0
-### Фильтрация записей блэклиста по шаблонам из файла BLLIST_IP_FILTER_FILE. Записи (IP, CIDR) попадающие под шаблоны исключаются из кофига ipset (0 - off, 1 - on)
+### Группировать идущие подряд IPv6 адреса в диапазоны CIDR
+export BLLIST_SUMMARIZE_IP6=0
+### Группировать идущие подряд IPv6 подсети /64 в диапазоны CIDR
+export BLLIST_SUMMARIZE_CIDR6=0
+### Фильтрация записей блэклиста по шаблонам из файла BLLIST_IP_FILTER_FILE. Записи (IP, CIDR) попадающие под шаблоны исключаются из кофига nftables (0 - off, 1 - on)
 export BLLIST_IP_FILTER=0
 ### Тип фильтра IP (0 - все записи, кроме совпадающих с шаблонами; 1 - только записи, совпадающие с шаблонами)
 export BLLIST_IP_FILTER_TYPE=0
@@ -76,10 +85,10 @@ export BLLIST_IP_FILTER_FILE="${CONFIG_DIR}/ip_filter"
 export BLLIST_IP_EXCLUDED_ENABLE=0
 ### Файл с записями IP/CIDR для опции BLLIST_IP_EXCLUDED_ENABLE
 export BLLIST_IP_EXCLUDED_FILE="${CONFIG_DIR}/ip_excluded"
-### Включение опции исключения IP/CIDR из блэклиста
+### Включение опции исключения IP входящих в подсети CIDR
 export BLLIST_CIDR_EXCLUDED_ENABLE=0
 ### Файл с записями IP/CIDR для опции BLLIST_CIDR_EXCLUDED_ENABLE
-export BLLIST_CIDR_EXCLUDED_FILE="./cidr_excluded"
+export BLLIST_CIDR_EXCLUDED_FILE="${CONFIG_DIR}/cidr_excluded"
 ### Лимит субдоменов для группировки. При достижении, в конфиг dnsmasq будет добавлен весь домен 2-го ур-ня вместо множества субдоменов (0 - off)
 export BLLIST_SD_LIMIT=0
 ### Файл с SLD не подлежащими группировке при оптимизации (одна запись на строку)
@@ -204,13 +213,13 @@ case "$BLLIST_PRESET" in
 esac
 
 export AWK_CMD="awk"
-export LOGGER_CMD="$(which logger)"
+export LOGGER_CMD=$(which logger)
 if [ $ENABLE_LOGGING = "1" -a $? -ne 0 ]; then
     echo " Logger doesn't exists" >&2
     ENABLE_LOGGING=0
 fi
 export LOGGER_PARAMS="-t ${SCRIPT_NAME}"
-export WGET_CMD="$(which wget)"
+export WGET_CMD=$(which wget)
 if [ $? -ne 0 ]; then
     echo " Error! Wget doesn't exists" >&2
     exit 1
@@ -225,20 +234,44 @@ fi
 USER_ENTRIES_PARSER="${MODULES_DIR}/ruab_parser_user_entries"
 export IP_DATA_FILE="${DATA_DIR}/${NAME}.ip"
 export DNSMASQ_DATA_FILE="${DATA_DIR}/${NAME}.dnsmasq"
-export NFT_TABLE="ip r"
-export NFT_TABLE_DNSMASQ="4#ip#r"
+export NFT_TABLE="inet r"
+export NFT_TABLE_DNSMASQ="4#inet#r"
+export NFT_TABLE_DNSMASQ_6="6#inet#r"
 export NFTSET_IP="i"
+export NFTSET_IP_6="i6"
 export NFTSET_DNSMASQ="d"
+export NFTSET_DNSMASQ_6="d6"
 export NFTSET_IP_TYPE="ipv4_addr"
+export NFTSET_IP_TYPE_6="ipv6_addr"
 export NFTSET_DNSMASQ_TYPE="ipv4_addr"
+export NFTSET_DNSMASQ_TYPE_6="ipv6_addr"
 export NFTSET_IP_PATTERN="set %s {type ${NFTSET_IP_TYPE};size ${NFTSET_MAXELEM_IP};policy ${NFTSET_POLICY_IP};flags interval;auto-merge;"
+export NFTSET_IP_PATTERN_6="set %s {type ${NFTSET_IP_TYPE_6};size ${NFTSET_MAXELEM_IP};policy ${NFTSET_POLICY_IP};flags interval;auto-merge;"
 export NFTSET_IP_STRING_MAIN=$(printf "$NFTSET_IP_PATTERN" "${NFTSET_IP}")
+export NFTSET_IP_STRING_MAIN_6=$(printf "$NFTSET_IP_PATTERN_6" "${NFTSET_IP_6}")
 export UPDATE_STATUS_FILE="${DATA_DIR}/update_status"
 export USER_ENTRIES_STATUS_FILE="${DATA_DIR}/user_entries_status"
 export IP_DATA_FILE_TMP="${IP_DATA_FILE}.tmp"
 export DNSMASQ_DATA_FILE_TMP="${DNSMASQ_DATA_FILE}.tmp"
 export UPDATE_STATUS_FILE_TMP="${UPDATE_STATUS_FILE}.tmp"
 export USER_ENTRIES_STATUS_FILE_TMP="${USER_ENTRIES_STATUS_FILE}.tmp"
+
+export U_ENABLE_IPv4=1
+export U_ENABLE_IPv6=0
+case $BLLIST_IP_FAMILY in
+    1)
+        U_ENABLE_IPv4=0
+        U_ENABLE_IPv6=1
+    ;;
+    2)
+        U_ENABLE_IPv4=1
+        U_ENABLE_IPv6=1
+    ;;
+    *)
+        U_ENABLE_IPv4=1
+        U_ENABLE_IPv6=0
+    ;;
+esac
 
 [ -d "$DATA_DIR" ] || mkdir -p "$DATA_DIR"
 
@@ -286,16 +319,25 @@ AddUserEntries() {
             if [ "$ENABLE_TMP_DOWNLOADS" != "1" ]; then
                 ClearDataFiles
             fi
-            printf "flush set %s %s\n" "$NFT_TABLE" "$NFTSET_IP" >> "$_ip_data_file"
+            if [ "$ENABLE_IPv4" = "1" ]; then
+                printf "flush set %s %s\n" "$NFT_TABLE" "$NFTSET_IP" >> "$_ip_data_file"
+            fi
+            if [ "$ENABLE_IPv6" = "1" ]; then
+                printf "flush set %s %s\n" "$NFT_TABLE" "$NFTSET_IP_6" >> "$_ip_data_file"
+            fi
         else
             printf "" > "$USER_ENTRIES_STATUS_FILE"
         fi
 
         export U_NAME="main"
+        export U_ENABLE_IPv4="$ENABLE_IPv4"
+        export U_ENABLE_IPv6="$ENABLE_IPv6"
         export U_ENTRIES_REMOTE="$USER_ENTRIES_REMOTE"
         export U_ENTRIES_DNS="$USER_ENTRIES_DNS"
         export I_NFTSET_IP_STRING="$(printf "$NFTSET_IP_PATTERN" "$NFTSET_IP")"
+        export I_NFTSET_IP_STRING_6="$(printf "$NFTSET_IP_PATTERN_6" "$NFTSET_IP_6")"
         export I_NFTSET_DNSMASQ="$NFTSET_DNSMASQ"
+        export I_NFTSET_DNSMASQ_6="$NFTSET_DNSMASQ_6"
         export I_IP_DATA_FILE="$_ip_data_file"
         export I_DNSMASQ_DATA_FILE="$_dnsmasq_data_file"
         export I_USER_ENTRIES_STATUS_FILE="$_user_entries_status_file"
@@ -335,7 +377,6 @@ AddUserEntries() {
 
     return $_return_code
 }
-
 
 GetDataFiles() {
     local _return_code=1 _attempt=1 _update_string
