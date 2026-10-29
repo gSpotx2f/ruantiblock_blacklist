@@ -12,10 +12,10 @@ jobs:
             # - uses: actions/setup-python@v5
             #   with:
             #     python-version: '3.12'
-            #- name: v3.0 - fqdn configuration
-            #  run: |
-            #    cd ./3.0
-            #    ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-3.0/fqdn
+            - name: v3.0 - fqdn configuration
+             run: |
+               cd ./3.0
+               ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-3.0/fqdn
             - name: v3.0 - ip configuration
               run: |
                 cd ./3.0

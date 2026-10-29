@@ -257,7 +257,7 @@ class BlackListParser(Config):
         self.ip_pattern = re.compile(r"(([0-9]{1,3}[.]){3})[0-9]{1,3}")
         self.cidr_pattern = re.compile(r"([0-9]{1,3}[.]){3}[0-9]{1,3}/[0-9]{1,2}")
         self.fqdn_pattern = re.compile(
-            r"([а-яёa-z0-9_.*-]*?)([а-яёa-z0-9_-]+[.][а-яёa-z0-9-]+)", re.U)
+            r"([а-яёa-z0-9_-]{1,63}[.])*?([а-яёa-z0-9_-]{1,63}[.][а-яёa-z0-9-]{1,63})", re.U)
         self.www_pattern = re.compile(r"^www[0-9]?[.]")
         self.cyr_pattern = re.compile(r"[а-яё]", re.U)
         self.cidr_set = set()
