@@ -13,9 +13,9 @@ jobs:
               with:
                 python-version: '3.12'
             - name: v1.1 - fqdn configuration
-             run: |
-               cd ./1.1
-               ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-1.1/fqdn
+              run: |
+                cd ./1.1
+                ./run_parser.sh ./ruantiblock_fqdn.conf ../blacklist-1.1/fqdn
             - name: v1.1 - ip configuration
               run: |
                 cd ./1.1
