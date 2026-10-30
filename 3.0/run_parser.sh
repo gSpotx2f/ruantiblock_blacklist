@@ -118,6 +118,16 @@ export BLLIST_ALT_NSLOOKUP=0
 ### Альтернативный DNS-сервер
 export BLLIST_ALT_DNS_ADDR="8.8.8.8"
 
+export U_ENABLE_IDN=0
+export U_IP_FILTER=0
+export U_IP_EXCLUDED_ENABLE=0
+export U_IP_FILTER_TYPE=0
+export U_FQDN_FILTER=0
+export U_FQDN_EXCLUDED_ENABLE=0
+export U_FQDN_FILTER_TYPE=0
+export U_STRIP_WWW=1
+export U_SD_LIMIT=0
+
 ############################ Configuration #############################
 
 ### External config
@@ -128,9 +138,9 @@ fi
 
 ### Blacklist sources
 ## rublacklist
-# export RBL_ALL_URL="https://reestr.rublacklist.net/api/v3/snapshot/"
-# export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
-# export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
+#export RBL_ALL_URL="https://reestr.rublacklist.net/api/v3/snapshot/"
+#export RBL_IP_URL="https://reestr.rublacklist.net/api/v3/ips/"
+#export RBL_DPI_URL="https://reestr.rublacklist.net/api/v3/dpi/"
 export RBL_ALL_URL="https://blockedin.org/api/v3/snapshot/"
 export RBL_IP_URL="https://blockedin.org/api/v3/ips/"
 export RBL_DPI_URL="https://blockedin.org/api/v3/dpi/"
@@ -319,10 +329,10 @@ AddUserEntries() {
             if [ "$ENABLE_TMP_DOWNLOADS" != "1" ]; then
                 ClearDataFiles
             fi
-            if [ "$ENABLE_IPv4" = "1" ]; then
+            if [ "$U_ENABLE_IPv4" = "1" ]; then
                 printf "flush set %s %s\n" "$NFT_TABLE" "$NFTSET_IP" >> "$_ip_data_file"
             fi
-            if [ "$ENABLE_IPv6" = "1" ]; then
+            if [ "$U_ENABLE_IPv6" = "1" ]; then
                 printf "flush set %s %s\n" "$NFT_TABLE" "$NFTSET_IP_6" >> "$_ip_data_file"
             fi
         else
@@ -330,8 +340,8 @@ AddUserEntries() {
         fi
 
         export U_NAME="main"
-        export U_ENABLE_IPv4="$ENABLE_IPv4"
-        export U_ENABLE_IPv6="$ENABLE_IPv6"
+        export U_ENABLE_IPv4
+        export U_ENABLE_IPv6
         export U_ENTRIES_REMOTE="$USER_ENTRIES_REMOTE"
         export U_ENTRIES_DNS="$USER_ENTRIES_DNS"
         export I_NFTSET_IP_STRING="$(printf "$NFTSET_IP_PATTERN" "$NFTSET_IP")"
